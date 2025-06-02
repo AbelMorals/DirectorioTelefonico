@@ -1,31 +1,45 @@
 package com.example.directorio.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.directorio.viewModels.CronometroViewModel
-import com.example.directorio.viewModels.CronosViewModel
+import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directorio.views.AddView
 import com.example.directorio.views.EditView
 import com.example.directorio.views.HomeView
+import com.example.directorio.views.OnboardingView
+import com.example.onboardingapp.dataStore.OnboardingStore
 
 @Composable
-fun NavManager(cronometroVM: CronometroViewModel,cronosVM: CronosViewModel){
+fun NavManager(contactoVM: ContactoViewModel){
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "Home"){
-        composable("Home"){
-            HomeView(navController,cronosVM)
+    val context = LocalContext.current
+    val onboardingStore = OnboardingStore(context)
+
+    val store = onboardingStore.getStoreBoarding.collectAsState(initial = true)
+
+    NavHost(navController = navController,
+        startDestination = if(store.value==true) "Home" else "Onboarding"
+    ){
+        composable("Onboarding") {
+            OnboardingView(navController, onboardingStore)
         }
-        composable("AddView"){
-            AddView(navController,cronometroVM,cronosVM)
+        composable("Home") {
+            HomeView(navController, contactoVM)
         }
-        composable("EditView/{id}",arguments = listOf(navArgument("id"){
-            type= NavType.LongType})){
-            val id=it.arguments?.getLong("id")?:0
-            EditView(navController,cronometroVM,cronosVM,id)
+        composable("AddView") {
+            AddView(navController, contactoVM)
+        }
+        composable("EditView/{id}", arguments = listOf(
+            navArgument("id") { type = NavType.LongType }
+        )) {
+            val id = it.arguments?.getLong("id") ?: 0
+            EditView(navController, contactoVM, id)
         }
     }
 }

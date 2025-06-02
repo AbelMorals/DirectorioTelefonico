@@ -2,7 +2,7 @@ package com.example.directorio.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.directorio.room.CronosDatabase
+import com.example.directorio.room.ContactoDatabase
 import com.example.directorio.room.ContactoDataBaseDao
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,16 +17,16 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideCronosDao(cronosDatabase: CronosDatabase): ContactoDataBaseDao {
-        return cronosDatabase.cronosDao()
+    fun provideCronosDao(contactoDatabase: ContactoDatabase): ContactoDataBaseDao {
+        return contactoDatabase.contactoDao()
     }
 
     @Singleton
     @Provides
-    fun provideCronosDatabase(@ApplicationContext context: Context): CronosDatabase {
+    fun provideCronosDatabase(@ApplicationContext context: Context): ContactoDatabase {
         return Room.databaseBuilder(
             context,
-            CronosDatabase::class.java,
+            ContactoDatabase::class.java,
             "cronos_db"
         ).fallbackToDestructiveMigration()
             .build()

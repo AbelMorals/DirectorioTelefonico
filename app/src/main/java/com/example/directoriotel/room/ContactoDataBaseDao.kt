@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.cronoapps.model.Contacto
+import com.example.directoriotel.model.Contacto
 import kotlinx.coroutines.flow.Flow
 
 //Interface -> Repositorios -> ViewModel -> View
@@ -14,20 +14,19 @@ import kotlinx.coroutines.flow.Flow
 @Dao //Data Access Object
 interface ContactoDataBaseDao {
     //Crud
+    @Query("Select * From contactos")
+    fun getContactos(): Flow<List<Contacto>>
 
-    @Query("Select * From cronos")
-    fun getCronos(): Flow<List<Contacto>>
-
-    @Query("Select * From cronos Where id = :id")
-    fun getCronosById(id: Long): Flow<Cronos>
+    @Query("Select * From contactos Where id = :id")
+    fun getContactosById(id: Long): Flow<Contacto>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(cronos: Cronos)
+    suspend fun insert(contacto: Contacto)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(cronos: Cronos)
+    suspend fun update(contacto: Contacto)
 
     @Delete
-    suspend fun delete(cronos: Cronos)
+    suspend fun delete(contacto: Contacto)
 
 }

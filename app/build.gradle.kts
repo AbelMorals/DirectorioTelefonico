@@ -67,7 +67,7 @@ dependencies {
     implementation ("me.saket.swipe:swipe:1.1.1")
 
     //--OnBoarding
-    implementation ("com.google.accompanist: accompanist-pager: 0.15.0")
+    //implementation ("com.google.accompanist: accompanist-pager: 0.15.0")
 
     //-- Lottie
     implementation ("com.airbnb.android:lottie-compose:5.2.0")
