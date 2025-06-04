@@ -17,5 +17,11 @@ data class Contacto(
     @ColumnInfo(name = "correo")
     val correo: String,
     @ColumnInfo(name = "telefono")
-    val telefono: String
+    val telefono: String,
+    @ColumnInfo(name = "direccion")
+    val direccion: String,
+    @ColumnInfo(name = "imagenUri")
+    val imagenUri: String?,
+    @ColumnInfo(name = "favorito", defaultValue = "0")
+    val favorito: Boolean = false
 )

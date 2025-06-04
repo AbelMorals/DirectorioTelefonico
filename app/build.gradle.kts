@@ -58,7 +58,6 @@ dependencies {
     api ("com.google.dagger:dagger-android-support:2.46.1")
     kapt ("com.google.dagger:dagger-android-processor:2.46.1")
 
-
     //  Dagger Hilt
     implementation ("com.google.dagger:hilt-android:2.46.1")
     kapt ("com.google.dagger:hilt-compiler:2.46.1")
@@ -66,8 +65,8 @@ dependencies {
     // Swipe
     implementation ("me.saket.swipe:swipe:1.1.1")
 
-    //--OnBoarding
-    //implementation ("com.google.accompanist: accompanist-pager: 0.15.0")
+    //--Lottie
+    implementation("com.airbnb.android:lottie-compose:6.3.0")
 
     //-- Lottie
     implementation ("com.airbnb.android:lottie-compose:5.2.0")
@@ -77,6 +76,13 @@ dependencies {
 
     //--DataStore
     implementation ("androidx.datastore:datastore-preferences:1.1.7")
+
+    // Para manejo de imágenes
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+    implementation ("io.coil-kt:coil:2.4.0")
+
+    // Para permisos en Android 13+
+    implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

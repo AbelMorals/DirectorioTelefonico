@@ -1,6 +1,7 @@
 package com.example.directorio.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
@@ -16,7 +17,7 @@ import com.example.directorio.views.OnboardingView
 import com.example.onboardingapp.dataStore.OnboardingStore
 
 @Composable
-fun NavManager(contactoVM: ContactoViewModel){
+fun NavManager(contactoVM: ContactoViewModel, isDarkTheme:MutableState<Boolean>){
     val navController = rememberNavController()
     val context = LocalContext.current
     val onboardingStore = OnboardingStore(context)
@@ -30,7 +31,7 @@ fun NavManager(contactoVM: ContactoViewModel){
             OnboardingView(navController, onboardingStore)
         }
         composable("Home") {
-            HomeView(navController, contactoVM)
+            HomeView(navController, contactoVM, isDarkTheme)
         }
         composable("AddView") {
             AddView(navController, contactoVM)

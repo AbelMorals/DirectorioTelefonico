@@ -12,5 +12,8 @@ class ContactoRepository @Inject constructor(private val contactoDatabaseDao: Co
     suspend fun addContacto(contacto: Contacto) = contactoDatabaseDao.insert(contacto)
     suspend fun updateContacto(contacto: Contacto) = contactoDatabaseDao.update(contacto)
     suspend fun deleteContacto(contacto: Contacto) = contactoDatabaseDao.delete(contacto)
+    suspend fun toggleFavorito(id: Long, favorito: Boolean) = contactoDatabaseDao.updateFavorito(id, favorito)
+
+    fun getFavoritos(): Flow<List<Contacto>> = contactoDatabaseDao.getFavoritos().flowOn(Dispatchers.IO).conflate()
     fun getAllContactos(): Flow<List<Contacto>> = contactoDatabaseDao.getContactos().flowOn(Dispatchers.IO).conflate()
 }

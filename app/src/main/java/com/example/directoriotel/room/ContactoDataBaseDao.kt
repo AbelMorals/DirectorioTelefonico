@@ -20,6 +20,12 @@ interface ContactoDataBaseDao {
     @Query("Select * From contactos Where id = :id")
     fun getContactosById(id: Long): Flow<Contacto>
 
+    @Query("UPDATE contactos SET favorito = :favorito WHERE id = :id")
+    suspend fun updateFavorito(id: Long, favorito: Boolean)
+
+    @Query("Select * From contactos Where favorito = 1")
+    fun getFavoritos(): Flow<List<Contacto>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(contacto: Contacto)
 

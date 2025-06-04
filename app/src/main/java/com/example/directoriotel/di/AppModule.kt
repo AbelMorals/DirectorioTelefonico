@@ -17,17 +17,17 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideCronosDao(contactoDatabase: ContactoDatabase): ContactoDataBaseDao {
+    fun provideContactoDao(contactoDatabase: ContactoDatabase): ContactoDataBaseDao {
         return contactoDatabase.contactoDao()
     }
 
     @Singleton
     @Provides
-    fun provideCronosDatabase(@ApplicationContext context: Context): ContactoDatabase {
+    fun provideContactoDatabase(@ApplicationContext context: Context): ContactoDatabase {
         return Room.databaseBuilder(
             context,
             ContactoDatabase::class.java,
-            "cronos_db"
+            "contactos_db"
         ).fallbackToDestructiveMigration()
             .build()
     }

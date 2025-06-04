@@ -10,23 +10,55 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class ContactoViewModel @Inject constructor(private val repository: ContactoRepository) : ViewModel() {
     private val _contactos = MutableStateFlow<List<Contacto>>(emptyList())
-    val contactos = _contactos.asStateFlow()
+    private val _filtro = MutableStateFlow("Todos")
+    private val _busqueda = MutableStateFlow("")
+
+    val contactos = combine(_filtro, _busqueda, _contactos) { filtro, query, lista ->
+        val filtrados = when (filtro) {
+            "Favoritos" -> lista.filter { it.favorito }
+            else -> lista
+        }
+
+        filtrados
+            .filter {
+                val texto = query.lowercase()
+                it.nombre.lowercase().contains(texto) ||
+                        it.apellidosP.lowercase().contains(texto) ||
+                        it.apellidosM.lowercase().contains(texto) ||
+                        it.telefono.contains(texto)
+            }
+            .sortedWith(
+                compareByDescending<Contacto> { it.favorito }
+                    .thenBy { it.nombre }
+                    .thenBy { it.apellidosP }
+            )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     init{
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getAllContactos().collect {item->
-                if(item.isNullOrEmpty()){
-                    _contactos.value = emptyList()
-                }else{
-                    _contactos.value = item
-                }
-
+            repository.getAllContactos().collect { items ->
+                _contactos.value = items.sortedWith(
+                    compareByDescending<Contacto> { it.favorito }
+                        .thenBy { it.nombre }
+                        .thenBy { it.apellidosP }
+                )
             }
         }
+    }
+
+    fun setFiltro(filtro: String) {
+        _filtro.value = filtro
+    }
+
+    fun setBusqueda(query: String) {
+        _busqueda.value = query
     }
 
     fun addContacto(contacto: Contacto) = viewModelScope.launch { repository.addContacto(contacto) }
@@ -34,4 +66,6 @@ class ContactoViewModel @Inject constructor(private val repository: ContactoRepo
     fun updateContacto(contacto: Contacto) = viewModelScope.launch { repository.updateContacto(contacto) }
 
     fun deleteContacto(contacto: Contacto) = viewModelScope.launch { repository.deleteContacto(contacto) }
+
+    fun toggleFavorito(contacto: Contacto) = viewModelScope.launch { repository.toggleFavorito(contacto.id, !contacto.favorito) }
 }
