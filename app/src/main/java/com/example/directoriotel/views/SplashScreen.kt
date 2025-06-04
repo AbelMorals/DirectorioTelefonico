@@ -77,7 +77,7 @@ fun OnboardingView(navController: NavController, onBoardingStore: OnboardingStor
         OnboardingPageData(
             lottieFileRes = R.raw.page4,
             title = "Simple e Intuitivo",
-            description = "Con una interfaz amigable y sencilla de navegar."
+            description = "Puedes llamar, mandar mensajes y ver tu ubicación en cualquier momento."
         ),
         OnboardingPageData(
             lottieFileRes = R.raw.page5,
