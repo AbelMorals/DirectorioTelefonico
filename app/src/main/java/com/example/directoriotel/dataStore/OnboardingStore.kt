@@ -13,6 +13,15 @@ class OnboardingStore(private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("onboarding_prefs")
         val STORE_BOARD = booleanPreferencesKey("onboarding_completed")
+        val Dark_Mode = booleanPreferencesKey("dark_mode")
+    }
+
+    val isDarkModeOn: Flow<Boolean> = context.dataStore.data
+    .map { prefs -> prefs[Dark_Mode] ?: false }
+
+    suspend fun setDarkMode(value: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Dark_Mode] = value }
     }
 
     val getStoreBoarding: Flow<Boolean> = context.dataStore.data

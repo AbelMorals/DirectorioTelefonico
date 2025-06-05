@@ -84,6 +84,10 @@ dependencies {
     // Para permisos en Android 13+
     implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
 
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("com.google.android.libraries.places:places:3.4.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

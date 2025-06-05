@@ -11,9 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,10 +65,8 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
 
     var nombreError by remember { mutableStateOf<String?>(null) }
     var apellidoPError by remember { mutableStateOf<String?>(null) }
-    var apellidoMError by remember { mutableStateOf<String?>(null) }
     var correoError by remember { mutableStateOf<String?>(null) }
     var telefonoError by remember { mutableStateOf<String?>(null) }
-    var direccionError by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val (selectedImageUri, pickImage) = ImageUtils.rememberImagePicker()
@@ -76,22 +79,12 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
         return if (apellidoP.isBlank()) "El apellido paterno no puede estar vacío" else null
     }
 
-    fun validarApellidoM(apellidoM: String): String? {
-        return if (apellidoM.isBlank()) "El apellido materno no puede estar vacío" else null
-    }
-
     fun validarCorreo(correo: String): String? {
-        return if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+        return if (correo.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
             "Introduce un correo válido (ej. usuario@dominio.com)"
         } else {
             null
         }
-    }
-
-    fun validarDireccion(direccion: String): String? {
-        return if (direccion.isBlank())
-            "La dirección no puede estar vacía"
-        else null
     }
 
     fun validarTelefono(telefono: String): String? {
@@ -121,10 +114,8 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
 
                 nombreError = null
                 apellidoPError = null
-                apellidoMError = null
-                correoError = null
                 telefonoError = null
-                direccionError = null
+                correoError = null
             }
         }
     }
@@ -136,23 +127,19 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
     fun agregarContacto() {
         nombreError = validarNombre(nombre)
         apellidoPError = validarApellidoP(apellidosP)
-        apellidoMError = validarApellidoM(apellidosM)
-        correoError = validarCorreo(correo)
         telefonoError = validarTelefono(telefono)
-        direccionError = validarDireccion(direccion)
+        correoError = validarCorreo(correo)
 
-        if (nombreError == null && correoError == null && telefonoError == null &&
-            apellidoPError == null && apellidoMError == null && direccionError == null
-        ) {
+        if (nombreError == null && telefonoError == null && apellidoPError == null && correoError == null) {
             contactoVM.updateContacto(
                 Contacto(
                     id = id,
-                    nombre = nombre,
-                    apellidosP = apellidosP,
-                    apellidosM = apellidosM,
-                    correo = correo,
-                    telefono = telefono,
-                    direccion = direccion,
+                    nombre = nombre.trim(),
+                    apellidosP = apellidosP.trim(),
+                    apellidosM = apellidosM.trim(),
+                    correo = correo.trim(),
+                    telefono = telefono.trim(),
+                    direccion = direccion.trim(),
                     imagenUri = imagenUri
                 )
             )
@@ -195,16 +182,17 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
         ) {
             ContactAvatar(
                 imagenUri = imagenUri?.toString(),
-                nombre = nombre,
                 modifier = Modifier
                     .size(120.dp)
                     .align(Alignment.CenterHorizontally),
                 onClick = { pickImage() }
             )
 
+            Spacer(modifier = Modifier.size(16.dp))
+
             if (imagenUri != null) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp), // Espacio entre botones
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(
@@ -227,6 +215,12 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                     nombreError = validarNombre(it)
                 },
                 label = "Nombre",
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = "Nombre"
+                    )
+                },
                 isError = nombreError != null,
                 errorMessage = nombreError)
 
@@ -237,6 +231,12 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                     apellidoPError = validarApellidoP(it)
                 },
                 label = "Apellido Paterno",
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.AccountBox,
+                        contentDescription = "ApellidoP"
+                    )
+                },
                 isError = apellidoPError != null,
                 errorMessage = apellidoPError
             )
@@ -245,11 +245,14 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                 value = apellidosM,
                 onValueChange = {
                     apellidosM = it
-                    apellidoMError = validarApellidoM(it)
                 },
                 label = "Apellido Materno",
-                isError = apellidoMError != null,
-                errorMessage = apellidoMError
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "ApellidoM"
+                    )
+                }
             )
 
             MainTextField(
@@ -259,9 +262,15 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                     correoError = validarCorreo(it)
                 },
                 label = "Correo",
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Email,
+                        contentDescription = "Correo"
+                    )
+                },
+                keyboardType = KeyboardType.Email,
                 isError = correoError != null,
-                errorMessage = correoError,
-                keyboardType = KeyboardType.Email
+                errorMessage = correoError
             )
 
             MainTextField(
@@ -273,6 +282,12 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                 label = "Teléfono",
                 isError = telefonoError != null,
                 errorMessage = telefonoError,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Phone,
+                        contentDescription = "Telefono"
+                    )
+                },
                 keyboardType = KeyboardType.Phone
             )
 
@@ -280,12 +295,9 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                 value = direccion,
                 onValueChange = {
                     direccion = it
-                    direccionError = validarDireccion(it)
                 },
                 label = "Dirección",
-                isError = direccionError != null,
-                errorMessage = direccionError,
-                trailingIcon = {
+                leadingIcon = {
                     IconButton(
                         onClick = {
                             val addressQuery = if (direccion.isNotBlank()) Uri.encode(direccion) else ""

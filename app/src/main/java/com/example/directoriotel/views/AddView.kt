@@ -1,22 +1,30 @@
 package com.example.directorio.views
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,6 +55,10 @@ import com.example.directorio.components.MainTitle
 import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directoriotel.images.ImageUtils
 import com.example.directoriotel.model.Contacto
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,13 +73,38 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
 
     var nombreError by remember { mutableStateOf<String?>(null) }
     var apellidoPError by remember { mutableStateOf<String?>(null) }
-    var apellidoMError by remember { mutableStateOf<String?>(null) }
-    var correoError by remember { mutableStateOf<String?>(null) }
     var telefonoError by remember { mutableStateOf<String?>(null) }
-    var direccionError by remember { mutableStateOf<String?>(null) }
+    var correoError by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val (selectedImageUri, pickImage) = ImageUtils.rememberImagePicker()
+
+    // Launcher para el Autocomplete de Places
+    val placesAutocompleteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        when (result.resultCode) {
+            Activity.RESULT_OK -> {
+                val data: Intent? = result.data
+                data?.let {
+                    val place = Autocomplete.getPlaceFromIntent(it)
+                    Log.i("AddView", "Lugar seleccionado: ${place.name}, Dirección: ${place.address}")
+                    direccion = place.address ?: ""
+                }
+            }
+            AutocompleteActivity.RESULT_ERROR -> {
+                val data: Intent? = result.data
+                data?.let {
+                    val status = Autocomplete.getStatusFromIntent(it)
+                    Log.e("AddView", "Error de Places Autocomplete: ${status.statusMessage}")
+                    Toast.makeText(context, "Error al seleccionar lugar: ${status.statusMessage}", Toast.LENGTH_LONG).show()
+                }
+            }
+            Activity.RESULT_CANCELED -> {
+                Log.i("AddView", "Selección de lugar cancelada por el usuario.")
+            }
+        }
+    }
 
     fun validarNombre(nombre: String): String? {
         return if (nombre.isBlank()) "El nombre no puede estar vacío" else null
@@ -77,23 +114,14 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
         return if (apellidoP.isBlank()) "El apellido paterno no puede estar vacío" else null
     }
 
-    fun validarApellidoM(apellidoM: String): String? {
-        return if (apellidoM.isBlank()) "El apellido materno no puede estar vacío" else null
-    }
-
     fun validarCorreo(correo: String): String? {
-        return if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+        return if (correo.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
             "Introduce un correo válido (ej. usuario@dominio.com)"
         } else {
             null
         }
     }
 
-    fun validarDireccion(direccion: String): String? {
-        return if (direccion.isBlank())
-            "La dirección no puede estar vacía"
-        else null
-    }
     fun validarTelefono(telefono: String): String? {
         return if (!telefono.all { it.isDigit() } || telefono.isBlank()) {
             "El teléfono solo debe contener números"
@@ -115,14 +143,10 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
     fun guardarContacto() {
         nombreError = validarNombre(nombre)
         apellidoPError = validarApellidoP(apellidosP)
-        apellidoMError = validarApellidoM(apellidosM)
-        correoError = validarCorreo(correo)
         telefonoError = validarTelefono(telefono)
-        direccionError = validarDireccion(direccion)
+        correoError = validarCorreo(correo)
 
-        if (nombreError == null && correoError == null && telefonoError == null &&
-            apellidoPError == null && apellidoMError == null && direccionError == null
-        ) {
+        if (nombreError == null && telefonoError == null && apellidoPError == null && correoError == null) {
             contactoVM.addContacto(
                 Contacto(
                     nombre = nombre.trim(),
@@ -174,12 +198,13 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
         ) {
             ContactAvatar(
                 imagenUri = imagenUri?.toString(),
-                nombre = nombre,
                 modifier = Modifier
                     .size(120.dp)
                     .align(Alignment.CenterHorizontally),
                 onClick = { pickImage() }
             )
+
+            Spacer(modifier = Modifier.size(16.dp))
 
             if (imagenUri != null) {
                 Row(
@@ -207,7 +232,13 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 },
                 label = "Nombre",
                 isError = nombreError != null,
-                errorMessage = nombreError
+                errorMessage = nombreError,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = "Nombre"
+                    )
+                }
             )
 
             MainTextField(
@@ -218,30 +249,44 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 },
                 label = "Apellido Paterno",
                 isError = apellidoPError != null,
-                errorMessage = apellidoPError
+                errorMessage = apellidoPError,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.AccountBox,
+                        contentDescription = "ApellidoP"
+                    )
+                }
             )
 
             MainTextField(
                 value = apellidosM,
                 onValueChange = {
                     apellidosM = it
-                    apellidoMError = validarApellidoM(it)
                 },
                 label = "Apellido Materno",
-                isError = apellidoMError != null,
-                errorMessage = apellidoMError
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "ApellidoM"
+                    )
+                }
             )
 
             MainTextField(
                 value = correo,
                 onValueChange = {
                     correo = it
-                    correoError = validarCorreo(it)
                 },
                 label = "Correo",
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Email,
+                        contentDescription = "Correo"
+                    )
+                },
+                keyboardType = KeyboardType.Email,
                 isError = correoError != null,
-                errorMessage = correoError,
-                keyboardType = KeyboardType.Email
+                errorMessage = correoError
             )
 
             MainTextField(
@@ -253,6 +298,12 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 label = "Teléfono",
                 isError = telefonoError != null,
                 errorMessage = telefonoError,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Phone,
+                        contentDescription = "Telefono"
+                    )
+                },
                 keyboardType = KeyboardType.Phone
             )
 
@@ -260,17 +311,37 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 value = direccion,
                 onValueChange = {
                     direccion = it
-                    direccionError = validarDireccion(it)
                 },
                 label = "Dirección",
-                isError = direccionError != null,
-                errorMessage = direccionError,
-                trailingIcon = {
+                leadingIcon = {
                     IconButton(
                         onClick = {
-                            val addressQuery = if (direccion.isNotBlank()) Uri.encode(direccion) else ""
-                            val mapIntentUri = Uri.parse("geo:0,0?q=$addressQuery")
-                            val mapIntent = Intent(Intent.ACTION_VIEW, mapIntentUri)
+                            val defaultLocationQuery = "Torreón, Coahuila, México"
+                            val currentAddressQuery = direccion
+//                            val fields = listOf(
+//                                Place.Field.ID,
+//                                Place.Field.NAME,
+//                                Place.Field.ADDRESS,
+//                                Place.Field.LAT_LNG
+//                            )
+//
+//                            val intent = Autocomplete.IntentBuilder(
+//                                AutocompleteActivityMode.OVERLAY,
+//                                fields
+//                            )
+//                                .setInitialQuery(if (direccion.isNotBlank()) direccion else "Torreón, Coahuila, México")
+//                                .build(context)
+//                            placesAutocompleteLauncher.launch(intent)
+
+                            val searchQuery = if (currentAddressQuery.isBlank()) {
+                                Uri.encode(defaultLocationQuery)
+                            } else {
+                                Uri.encode(currentAddressQuery)
+                            }
+
+
+                            val aintent = Uri.parse("geo:25.5428,-103.4068?q=$searchQuery")
+                            val mapIntent = Intent(Intent.ACTION_VIEW, aintent)
                             startActivity(context, mapIntent, null)
                         }
                     ) {

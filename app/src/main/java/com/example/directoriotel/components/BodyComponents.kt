@@ -1,6 +1,7 @@
 package com.example.directorio.components
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -50,10 +53,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import com.example.directoriotel.R
 import com.example.directoriotel.SystemIntegration
 import com.example.directoriotel.model.Contacto
-import com.example.directoriotel.R
+import androidx.compose.material3.CircularProgressIndicator
 
 @Composable
 fun MainTitle(title: String) {
@@ -64,6 +68,14 @@ fun MainTitle(title: String) {
         fontWeight = FontWeight.Bold)
 }
 
+@Composable
+fun MainTitle2(title: String) {
+    Text(
+        text = title,
+        color = MaterialTheme.colorScheme.onPrimary,
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold)
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTextField(
@@ -74,6 +86,7 @@ fun MainTextField(
     isError: Boolean = false,
     errorMessage: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
+    leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -86,6 +99,7 @@ fun MainTextField(
                 .padding(horizontal = 30.dp),
             isError = isError,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            leadingIcon = leadingIcon,
             trailingIcon = trailingIcon
         )
         if (isError && errorMessage != null) {
@@ -149,10 +163,8 @@ fun Directorio(
         )
         {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Avatar del contacto
                 ContactAvatar(
                     imagenUri = contacto.imagenUri,
-                    nombre = contacto.nombre,
                     modifier = Modifier.size(64.dp),
                     onClick = onClick
                 )
@@ -160,7 +172,7 @@ fun Directorio(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Text(
-                    text = "${contacto.nombre} ${contacto.apellidosP} ${contacto.apellidosM}",
+                    text = "${contacto.nombre} ${contacto.apellidosP} ${contacto.apellidosM}".trim(),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
@@ -174,28 +186,33 @@ fun Directorio(
                     }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            if (!contacto.correo.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = {
+                        SystemIntegration.sendEmail(
+                            context,
+                            contacto.correo
+                        )
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Email,
+                            contentDescription = "Enviar Correo",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { SystemIntegration.sendEmail(context, contacto.correo) }) {
-                    Icon(
-                        imageVector = Icons.Filled.Email,
-                        contentDescription = "Enviar Correo",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
+                    Text(text = contacto.correo, fontSize = 16.sp)
                 }
-
-                Text(text = contacto.correo, fontSize = 16.sp)
             }
-
             Spacer(modifier = Modifier.height(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { showPhoneOptionsDialog = true }) {
                     Icon(
                         imageVector = Icons.Filled.Phone,
-                        contentDescription = "Llamar",
+                        contentDescription = "Opciones de telefono",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(end = 8.dp)
                     )
@@ -205,22 +222,23 @@ fun Directorio(
                 Text(text = contacto.telefono, modifier = Modifier.weight(1f), fontSize = 16.sp)
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            if (!contacto.direccion.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { SystemIntegration.openMap(context, contacto.direccion) },
+                        enabled = contacto.direccion.isNotBlank()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.LocationOn,
+                            contentDescription = "Ver mapa",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = { SystemIntegration.openMap(context, contacto.direccion) },
-                    enabled = contacto.direccion.isNotBlank()
-                ){
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = "Ver mapa",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
+                    Text(text = contacto.direccion, fontSize = 16.sp)
                 }
-
-                Text(text = contacto.direccion, fontSize = 16.sp)
             }
 
             Divider(
@@ -228,7 +246,6 @@ fun Directorio(
                 thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
-            // Diálogo para seleccionar acción de teléfono
             if (showPhoneOptionsDialog) {
                 PhoneActionDialog(
                     onDismissRequest = { showPhoneOptionsDialog = false },
@@ -274,7 +291,6 @@ fun PhoneActionDialog(
 @Composable
 fun ContactAvatar(
     imagenUri: String?,
-    nombre: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -283,25 +299,38 @@ fun ContactAvatar(
         modifier = modifier
             .clip(CircleShape)
             .clickable(onClick = onClick)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+            .background(MaterialTheme.colorScheme.primary)
     ) {
         if (imagenUri != null) {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = imagenUri,
                 contentDescription = "Avatar de contacto",
-                modifier = Modifier.matchParentSize(), // Para que la imagen llene el Box
-                contentScale = ContentScale.Crop
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_person),
+                        contentDescription = "Cargando avatar",
+                        modifier = Modifier.size(45.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+                    )
+                },
+
+                error = {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_person),
+                        contentDescription = "Error cargando avatar",
+                        modifier = Modifier.size(45.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+                    )
+                }
             )
         } else {
-            val iniciales = if (nombre.isNotBlank()) {
-                nombre.trim().split(' ').take(2).joinToString("") { it.firstOrNull()?.uppercase() ?: "" }
-            } else {
-                "?"
-            }
-            Text(
-                text = iniciales,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+            Image(
+                painter = painterResource(id = R.drawable.baseline_person),
+                contentDescription = "Avatar por defecto",
+                modifier = Modifier.size(45.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
             )
         }
     }

@@ -1,6 +1,7 @@
 package com.example.directorio.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
@@ -17,11 +18,14 @@ import com.example.directorio.views.OnboardingView
 import com.example.onboardingapp.dataStore.OnboardingStore
 
 @Composable
-fun NavManager(contactoVM: ContactoViewModel, isDarkTheme:MutableState<Boolean>){
+fun NavManager(contactoVM: ContactoViewModel, isDarkTheme:MutableState<Boolean>, onBoardingStore: OnboardingStore){
     val navController = rememberNavController()
     val context = LocalContext.current
     val onboardingStore = OnboardingStore(context)
 
+    LaunchedEffect(isDarkTheme.value) {
+        onBoardingStore.setDarkMode(isDarkTheme.value)
+    }
     val store = onboardingStore.getStoreBoarding.collectAsState(initial = true)
 
     NavHost(navController = navController,

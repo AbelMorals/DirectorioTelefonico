@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -45,17 +46,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.directorio.components.Directorio
 import com.example.directorio.components.FloatButton
 import com.example.directorio.components.MainTitle
+import com.example.directorio.components.MainTitle2
 import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directoriotel.R
+import com.example.directoriotel.model.Contacto
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
@@ -67,6 +75,8 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
     var selectedFilter by remember { mutableStateOf("Todos") }
     var searchText by remember { mutableStateOf("") }
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+    var contactToDelete by remember { mutableStateOf<Contacto?>(null) }
 
     LaunchedEffect(searchText) {
         contactoVM.setBusqueda(searchText)
@@ -75,13 +85,13 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { MainTitle(title = "Directorio") },
+                title = { MainTitle2(title = "Directorio") },
                 navigationIcon = {
                     IconButton(onClick = { expanded = true }) {
                         Icon(
                             painter = painterResource(R.drawable.outline_filter),
                             contentDescription = "Filtro",
-                            tint = MaterialTheme.colorScheme.onBackground
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                         DropdownMenu(
                             expanded = expanded,
@@ -105,7 +115,7 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                         Icon(
                             painter = painterResource(R.drawable.baseline_settings_24),
                             contentDescription = "Configuración",
-                            tint = MaterialTheme.colorScheme.onBackground
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
@@ -154,18 +164,64 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                 }
             )
         }
-        ContentHomeView(it, navController, contactoVM)
+
+        if (showDeleteConfirmationDialog && contactToDelete != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteConfirmationDialog = false
+                    contactToDelete = null
+                },
+                title = { Text("Confirmar Eliminación") },
+                text = { Text("¿Estás seguro de que quieres eliminar a ${contactToDelete?.nombre ?: "este contacto"}?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            contactToDelete?.let { contactoVM.deleteContacto(it) }
+                            showDeleteConfirmationDialog = false
+                            contactToDelete = null
+                        }
+                    ) {
+                        Text("Eliminar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteConfirmationDialog = false
+                            contactToDelete = null
+                        }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
+
+        ContentHomeView(
+            it,
+            navController = navController,
+            contactoVM = contactoVM,
+            onInitialDelete = { contacto ->
+                contactToDelete = contacto
+                showDeleteConfirmationDialog = true
+            }
+        )
     }
 }
 
 @Composable
-fun ContentHomeView(paddingValues: PaddingValues, navController: NavController, contactoVM: ContactoViewModel) {
+fun ContentHomeView(
+    paddingValues: PaddingValues,
+    navController: NavController,
+    contactoVM: ContactoViewModel,
+    onInitialDelete: (Contacto) -> Unit
+) {
     val contactoList by contactoVM.contactos.collectAsState()
     val lazyListState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
     var searchText by remember { mutableStateOf("") }
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.contact))
 
-    if (contactoList.isEmpty()) {
+    if (contactoList.isEmpty() && searchText.isEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -177,15 +233,16 @@ fun ContentHomeView(paddingValues: PaddingValues, navController: NavController, 
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Sin contactos",
-                    modifier = Modifier.size(120.dp),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                LottieAnimation(
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever,
+                    modifier = Modifier
+                        .size(180.dp)
+                        .clip(CircleShape)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "No tienes contactos",
+                    text = "¡No tienes contactos!",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
@@ -226,12 +283,12 @@ fun ContentHomeView(paddingValues: PaddingValues, navController: NavController, 
                 val delete = SwipeAction(
                     icon = rememberVectorPainter(Icons.Default.Delete),
                     background = Color.Red,
-                    onSwipe = { contactoVM.deleteContacto(item) }
+                    onSwipe = { onInitialDelete(item) }
                 )
                 val delete2 = SwipeAction(
                     icon = rememberVectorPainter(Icons.Default.Delete),
                     background = Color.Blue,
-                    onSwipe = { contactoVM.deleteContacto(item) }
+                    onSwipe = { onInitialDelete(item) }
                 )
 
                 SwipeableActionsBox(
@@ -244,9 +301,6 @@ fun ContentHomeView(paddingValues: PaddingValues, navController: NavController, 
                         onClick = { navController.navigate("EditView/${item.id}") },
                         onToggleFavorito = {
                             contactoVM.toggleFavorito(item)
-                            coroutineScope.launch {
-                                lazyListState.scrollToItem(0)
-                            }
                         }
                     )
                 }

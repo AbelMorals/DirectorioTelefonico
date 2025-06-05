@@ -15,25 +15,12 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = ContactAppOnPrimaryDark,
     primaryContainer = ContactAppPrimaryContainerDark,
     onPrimaryContainer = ContactAppOnPrimaryContainerDark,
-    secondary = ContactAppBlueSecondaryDark,
-    onSecondary = ContactAppOnSecondaryDark,
-    secondaryContainer = ContactAppSecondaryContainerDark,
-    onSecondaryContainer = ContactAppOnSecondaryContainerDark,
-    tertiary = ContactAppTertiaryDark,
-    onTertiary = ContactAppOnTertiaryDark,
-    tertiaryContainer = ContactAppTertiaryContainerDark,
-    onTertiaryContainer = ContactAppOnTertiaryContainerDark,
-    error = ContactAppErrorDark,
-    onError = ContactAppOnErrorDark,
-    errorContainer = ContactAppErrorContainerDark,
-    onErrorContainer = ContactAppOnErrorContainerDark,
     background = ContactAppBackgroundDark,
     onBackground = ContactAppOnBackgroundDark,
     surface = ContactAppSurfaceDark,
     onSurface = ContactAppOnSurfaceDark,
     surfaceVariant = ContactAppSurfaceVariantDark,
-    onSurfaceVariant = ContactAppOnSurfaceVariantDark,
-    outline = ContactAppOutlineDark
+    onSurfaceVariant = ContactAppOnSurfaceVariantDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -45,21 +32,12 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = ContactAppOnSecondaryLight,
     secondaryContainer = ContactAppSecondaryContainerLight,
     onSecondaryContainer = ContactAppOnSecondaryContainerLight,
-    tertiary = ContactAppTertiaryLight,
-    onTertiary = ContactAppOnTertiaryLight,
-    tertiaryContainer = ContactAppTertiaryContainerLight,
-    onTertiaryContainer = ContactAppOnTertiaryContainerLight,
-    error = ContactAppErrorLight,
-    onError = ContactAppOnErrorLight,
-    errorContainer = ContactAppErrorContainerLight,
-    onErrorContainer = ContactAppOnErrorContainerLight,
     background = ContactAppBackgroundLight,
     onBackground = ContactAppOnBackgroundLight,
     surface = ContactAppSurfaceLight,
     onSurface = ContactAppOnSurfaceLight,
     surfaceVariant = ContactAppSurfaceVariantLight,
-    onSurfaceVariant = ContactAppOnSurfaceVariantLight,
-    outline = ContactAppOutlineLight
+    onSurfaceVariant = ContactAppOnSurfaceVariantLight
 )
 
 @Composable
