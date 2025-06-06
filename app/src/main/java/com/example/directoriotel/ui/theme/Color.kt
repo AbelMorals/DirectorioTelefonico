@@ -2,33 +2,65 @@ package com.example.directoriotel.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Tema Claro - Mejorado para mayor accesibilidad
-val ContactAppBluePrimaryLight = Color(0xFF0066CC)  // Azul más oscuro para mejor contraste
-val ContactAppOnPrimaryLight = Color(0xFFFFFFFF)
-val ContactAppPrimaryContainerLight = Color(0xFFD0E4FF)
-val ContactAppOnPrimaryContainerLight = Color(0xFF001A38)
+// Tema Claro - Esquema Principal (Índigo + Coral)
+val PrimaryLight = Color(0xFF4051B5)  // Índigo vibrante
+val OnPrimaryLight = Color(0xFFFFFFFF)
+val PrimaryContainerLight = Color(0xFFE0E1FF)
+val OnPrimaryContainerLight = Color(0xFF000D61)
 
-val ContactAppBlueSecondaryLight = Color(0xFF4A5568)  // Más contraste
-val ContactAppOnSecondaryLight = Color(0xFFFFFFFF)
-val ContactAppSecondaryContainerLight = Color(0xFFD6E3FF)
-val ContactAppOnSecondaryContainerLight = Color(0xFF051D40)
+// Tema Claro - Esquema Secundario (Verde esmeralda)
+val SecondaryLight = Color(0xFF006D5B)
+val OnSecondaryLight = Color(0xFFFFFFFF)
+val SecondaryContainerLight = Color(0xFF7EF8DD)
+val OnSecondaryContainerLight = Color(0xFF00201A)
 
-val ContactAppBackgroundLight = Color(0xFFF8F9FA)  // Fondo más claro
-val ContactAppOnBackgroundLight = Color(0xFF1A1C1E)
-val ContactAppSurfaceLight = Color(0xFFFFFFFF)     // Superficie blanca pura
-val ContactAppOnSurfaceLight = Color(0xFF1A1C1E)   // Texto más oscuro
-val ContactAppSurfaceVariantLight = Color(0xFFE1E2EC)
-val ContactAppOnSurfaceVariantLight = Color(0xFF44474E)
+// Tema Claro - Esquema Terciario (Coral vibrante)
+val TertiaryLight = Color(0xFF9C4238)
+val OnTertiaryLight = Color(0xFFFFFFFF)
+val TertiaryContainerLight = Color(0xFFFFDAD5)
+val OnTertiaryContainerLight = Color(0xFF410002)
 
-// Tema Oscuro - Mejorado
-val ContactAppBluePrimaryDark = Color(0xFF7FB6FF)   // Azul más brillante
-val ContactAppOnPrimaryDark = Color(0xFF002F5C)
-val ContactAppPrimaryContainerDark = Color(0xFF004787)
-val ContactAppOnPrimaryContainerDark = Color(0xFFD6E3FF)
+// Tema Claro - Neutrales
+val BackgroundLight = Color(0xFFFBF8FF)  // Blanco con tono lavanda sutil
+val OnBackgroundLight = Color(0xFF1B1B1F)
+val SurfaceLight = Color(0xFFFFFFFF)
+val OnSurfaceLight = Color(0xFF1B1B1F)
+val SurfaceVariantLight = Color(0xFFE3E1EC)
+val OnSurfaceVariantLight = Color(0xFF46464F)
 
-val ContactAppBackgroundDark = Color(0xFF121212)    // Fondo más oscuro
-val ContactAppOnBackgroundDark = Color(0xFFE1E1E1)  // Texto más claro
-val ContactAppSurfaceDark = Color(0xFF1E1E1E)
-val ContactAppOnSurfaceDark = Color(0xFFE1E1E1)
-val ContactAppSurfaceVariantDark = Color(0xFF3E4348)
-val ContactAppOnSurfaceVariantDark = Color(0xFFC4C6CF)
+// Tema Oscuro - Esquema Principal (Lavanda suave)
+val PrimaryDark = Color(0xFFBEC2FF)
+val OnPrimaryDark = Color(0xFF1A2378)
+val PrimaryContainerDark = Color(0xFF283990)
+val OnPrimaryContainerDark = Color(0xFFE0E1FF)
+
+// Tema Oscuro - Esquema Secundario (Verde menta)
+val SecondaryDark = Color(0xFF5FDBBF)
+val OnSecondaryDark = Color(0xFF00382C)
+val SecondaryContainerDark = Color(0xFF005141)
+val OnSecondaryContainerDark = Color(0xFF7EF8DD)
+
+// Tema Oscuro - Esquema Terciario (Melocotón claro)
+val TertiaryDark = Color(0xFFFFB3A8)
+val OnTertiaryDark = Color(0xFF5F160F)
+val TertiaryContainerDark = Color(0xFF7D2B23)
+val OnTertiaryContainerDark = Color(0xFFFFDAD5)
+
+// Tema Oscuro - Neutrales
+val BackgroundDark = Color(0xFF121318)  // Casi negro con tono azulado
+val OnBackgroundDark = Color(0xFFE4E1E6)
+val SurfaceDark = Color(0xFF1B1B1F)
+val OnSurfaceDark = Color(0xFFE4E1E6)
+val SurfaceVariantDark = Color(0xFF46464F)
+val OnSurfaceVariantDark = Color(0xFFC7C5D0)
+
+// Colores de Error (Consistentes en ambos temas)
+val ErrorLight = Color(0xFFBA1A1A)
+val OnErrorLight = Color(0xFFFFFFFF)
+val ErrorContainerLight = Color(0xFFFFDAD6)
+val OnErrorContainerLight = Color(0xFF410002)
+
+val ErrorDark = Color(0xFFFFB4AB)
+val OnErrorDark = Color(0xFF690005)
+val ErrorContainerDark = Color(0xFF93000A)
+val OnErrorContainerDark = Color(0xFFFFDAD6)

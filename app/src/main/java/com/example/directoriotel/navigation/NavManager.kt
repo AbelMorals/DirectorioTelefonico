@@ -13,8 +13,8 @@ import androidx.navigation.navArgument
 import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directorio.views.AddView
 import com.example.directorio.views.EditView
-import com.example.directorio.views.HomeView
 import com.example.directorio.views.OnboardingView
+import com.example.directoriotel.views.HomeView
 import com.example.onboardingapp.dataStore.OnboardingStore
 
 @Composable

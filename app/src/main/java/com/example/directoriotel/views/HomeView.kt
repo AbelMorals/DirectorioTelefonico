@@ -1,5 +1,6 @@
-package com.example.directorio.views
+package com.example.directoriotel.views
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,10 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -28,8 +26,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +42,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,11 +59,13 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.directorio.components.Directorio
 import com.example.directorio.components.FloatButton
 import com.example.directorio.components.MainTitle
-import com.example.directorio.components.MainTitle2
+import com.example.directorio.components.TextD
+import com.example.directorio.components.TextL
+import com.example.directorio.components.TextOutLinedD
+import com.example.directorio.components.TextOutLinedL
 import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directoriotel.R
 import com.example.directoriotel.model.Contacto
-import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
@@ -85,7 +86,7 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { MainTitle2(title = "Directorio") },
+                title = { MainTitle(title = "Directorio") },
                 navigationIcon = {
                     IconButton(onClick = { expanded = true }) {
                         Icon(
@@ -99,7 +100,7 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                         ) {
                             listOf("Todos", "Favoritos").forEach { filtro ->
                                 DropdownMenuItem(
-                                    text = { Text(filtro) },
+                                    text = { Text(filtro, style = MaterialTheme.typography.bodyLarge) },
                                     onClick = {
                                         selectedFilter = filtro
                                         contactoVM.setFiltro(filtro)
@@ -133,26 +134,28 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
         if (showThemeDialog) {
             AlertDialog(
                 onDismissRequest = { showThemeDialog = false },
-                title = { Text("Seleccionar tema") },
+                title = { Text("Seleccionar tema", style = MaterialTheme.typography.headlineSmall) },
                 text = {
                     Column {
                         ListItem(
-                            headlineContent = { Text("Tema claro") },
+                            headlineContent = { Text("Tema claro", style = MaterialTheme.typography.bodyLarge) },
                             leadingContent = {
                                 RadioButton(
                                     selected = !isDarkTheme.value,
                                     onClick = { isDarkTheme.value = false }
                                 )
-                            }
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
                         ListItem(
-                            headlineContent = { Text("Tema oscuro") },
+                            headlineContent = { Text("Tema oscuro", style = MaterialTheme.typography.bodyLarge) },
                             leadingContent = {
                                 RadioButton(
                                     selected = isDarkTheme.value,
                                     onClick = { isDarkTheme.value = true }
                                 )
-                            }
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
                     }
                 },
@@ -161,7 +164,10 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                     TextButton(onClick = { showThemeDialog = false }) {
                         Text("Aceptar")
                     }
-                }
+                },
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -171,8 +177,8 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                     showDeleteConfirmationDialog = false
                     contactToDelete = null
                 },
-                title = { Text("Confirmar Eliminación") },
-                text = { Text("¿Estás seguro de que quieres eliminar a ${contactToDelete?.nombre ?: "este contacto"}?") },
+                title = { Text("Confirmar Eliminación", style = MaterialTheme.typography.headlineSmall) },
+                text = { Text("¿Estás seguro de que quieres eliminar a ${contactToDelete?.nombre ?: "este contacto"}?",style = MaterialTheme.typography.bodyMedium) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -181,7 +187,7 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                             contactToDelete = null
                         }
                     ) {
-                        Text("Eliminar")
+                        Text("Eliminar", color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
@@ -193,7 +199,10 @@ fun HomeView(navController: NavController, contactoVM: ContactoViewModel, isDark
                     ) {
                         Text("Cancelar")
                     }
-                }
+                },
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -244,18 +253,29 @@ fun ContentHomeView(
                 Text(
                     text = "¡No tienes contactos!",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Presiona el botón + para agregar tu primer contacto",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
             }
         }
     }
+    val textColor: Color
+    val focusedBorderColor: Color
+
+    if(isSystemInDarkTheme()) {
+        textColor = TextD
+        focusedBorderColor = TextOutLinedD
+    }else{
+        textColor = TextL
+        focusedBorderColor = TextOutLinedL
+    }
+
     Column(modifier = Modifier.padding(paddingValues)) {
         OutlinedTextField(
             value = searchText,
@@ -263,7 +283,9 @@ fun ContentHomeView(
                 searchText = it
                 contactoVM.setBusqueda(it)
                             },
-            placeholder = { Text("Buscar por nombre o teléfono") },
+            placeholder = { Text("Buscar por nombre o teléfono",
+                style = MaterialTheme.typography.labelLarge,
+                color = focusedBorderColor) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -271,9 +293,24 @@ fun ContentHomeView(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Buscar"
+                    contentDescription = "Buscar",
+                    tint = focusedBorderColor
                 )
-            }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = focusedBorderColor,
+                focusedLabelColor = focusedBorderColor,
+                focusedTextColor = focusedBorderColor,
+
+                unfocusedBorderColor = focusedBorderColor,
+                unfocusedLabelColor = focusedBorderColor.copy(alpha = 0.7f),
+                unfocusedTextColor = focusedBorderColor,
+
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+                errorCursorColor = MaterialTheme.colorScheme.error,
+                errorTextColor = MaterialTheme.colorScheme.error,
+            )
         )
         LazyColumn(
             state = lazyListState,

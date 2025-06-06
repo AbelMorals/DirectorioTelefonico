@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -52,13 +55,14 @@ import com.example.directorio.components.ContactAvatar
 import com.example.directorio.components.MainIconButton
 import com.example.directorio.components.MainTextField
 import com.example.directorio.components.MainTitle
+import com.example.directorio.components.TextOutLinedD
+import com.example.directorio.components.TextOutLinedL
 import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directoriotel.images.ImageUtils
 import com.example.directoriotel.model.Contacto
-import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,32 +83,38 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
     val focusManager = LocalFocusManager.current
     val (selectedImageUri, pickImage) = ImageUtils.rememberImagePicker()
 
-    // Launcher para el Autocomplete de Places
-    val placesAutocompleteLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        when (result.resultCode) {
-            Activity.RESULT_OK -> {
-                val data: Intent? = result.data
-                data?.let {
-                    val place = Autocomplete.getPlaceFromIntent(it)
-                    Log.i("AddView", "Lugar seleccionado: ${place.name}, Dirección: ${place.address}")
-                    direccion = place.address ?: ""
-                }
-            }
-            AutocompleteActivity.RESULT_ERROR -> {
-                val data: Intent? = result.data
-                data?.let {
-                    val status = Autocomplete.getStatusFromIntent(it)
-                    Log.e("AddView", "Error de Places Autocomplete: ${status.statusMessage}")
-                    Toast.makeText(context, "Error al seleccionar lugar: ${status.statusMessage}", Toast.LENGTH_LONG).show()
-                }
-            }
-            Activity.RESULT_CANCELED -> {
-                Log.i("AddView", "Selección de lugar cancelada por el usuario.")
-            }
-        }
-    }
+    val filledColor: Color
+
+    if(isSystemInDarkTheme())
+        filledColor = TextOutLinedD
+    else
+        filledColor = TextOutLinedL
+
+//    val placesAutocompleteLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.StartActivityForResult()
+//    ) { result ->
+//        when (result.resultCode) {
+//            Activity.RESULT_OK -> {
+//                val data: Intent? = result.data
+//                data?.let {
+//                    val place = Autocomplete.getPlaceFromIntent(it)
+//                    Log.i("AddView", "Lugar seleccionado: ${place.name}, Dirección: ${place.address}")
+//                    direccion = place.address ?: ""
+//                }
+//            }
+//            AutocompleteActivity.RESULT_ERROR -> {
+//                val data: Intent? = result.data
+//                data?.let {
+//                    val status = Autocomplete.getStatusFromIntent(it)
+//                    Log.e("AddView", "Error de Places Autocomplete: ${status.statusMessage}")
+//                    Toast.makeText(context, "Error al seleccionar lugar: ${status.statusMessage}", Toast.LENGTH_LONG).show()
+//                }
+//            }
+//            Activity.RESULT_CANCELED -> {
+//                Log.i("AddView", "Selección de lugar cancelada por el usuario.")
+//            }
+//        }
+//    }
 
     fun validarNombre(nombre: String): String? {
         return if (nombre.isBlank()) "El nombre no puede estar vacío" else null
@@ -177,10 +187,13 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "Guardar Contacto",
-                            tint = MaterialTheme.colorScheme.onBackground
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     ) {
@@ -220,7 +233,9 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
             } else {
                 Text(
                     text = "Toca el círculo para seleccionar una imagen",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = filledColor
                 )
             }
 
@@ -236,7 +251,8 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Person,
-                        contentDescription = "Nombre"
+                        contentDescription = "Nombre",
+                        tint = filledColor
                     )
                 }
             )
@@ -253,7 +269,8 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.AccountBox,
-                        contentDescription = "ApellidoP"
+                        contentDescription = "ApellidoP",
+                        tint = filledColor
                     )
                 }
             )
@@ -267,7 +284,8 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "ApellidoM"
+                        contentDescription = "ApellidoM",
+                        tint = filledColor
                     )
                 }
             )
@@ -281,7 +299,8 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Email,
-                        contentDescription = "Correo"
+                        contentDescription = "Correo",
+                        tint = filledColor
                     )
                 },
                 keyboardType = KeyboardType.Email,
@@ -301,7 +320,8 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Phone,
-                        contentDescription = "Telefono"
+                        contentDescription = "Telefono",
+                        tint = filledColor
                     )
                 },
                 keyboardType = KeyboardType.Phone
@@ -347,7 +367,8 @@ fun AddView(navController: NavController, contactoVM: ContactoViewModel){
                     ) {
                         Icon(
                             imageVector = Icons.Filled.LocationOn,
-                            contentDescription = "Buscar Dirección en Mapa"
+                            contentDescription = "Buscar Dirección en Mapa",
+                            tint = filledColor
                         )
                     }
                 }

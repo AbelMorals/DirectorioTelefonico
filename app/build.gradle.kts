@@ -68,9 +68,6 @@ dependencies {
     //--Lottie
     implementation("com.airbnb.android:lottie-compose:6.3.0")
 
-    //-- Lottie
-    implementation ("com.airbnb.android:lottie-compose:5.2.0")
-
     //--Navigation
     implementation("androidx.navigation:navigation-compose:2.5.3")
 
@@ -88,6 +85,8 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("com.google.android.libraries.places:places:3.4.0")
+    implementation("androidx.compose.material3:material3:1.3.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

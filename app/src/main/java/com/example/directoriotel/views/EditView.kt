@@ -3,11 +3,11 @@ package com.example.directorio.views
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,6 +48,10 @@ import com.example.directorio.components.ContactAvatar
 import com.example.directorio.components.MainIconButton
 import com.example.directorio.components.MainTextField
 import com.example.directorio.components.MainTitle
+import com.example.directorio.components.TextD
+import com.example.directorio.components.TextL
+import com.example.directorio.components.TextOutLinedD
+import com.example.directorio.components.TextOutLinedL
 import com.example.directorio.viewModels.ContactoViewModel
 import com.example.directoriotel.images.ImageUtils
 import com.example.directoriotel.model.Contacto
@@ -70,6 +75,17 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val (selectedImageUri, pickImage) = ImageUtils.rememberImagePicker()
+
+    val textColor: Color
+    val focusedBorderColor: Color
+
+    if(isSystemInDarkTheme()) {
+        textColor = TextD
+        focusedBorderColor = TextOutLinedD
+    }else{
+        textColor = TextL
+        focusedBorderColor = TextOutLinedL
+    }
 
     fun validarNombre(nombre: String): String? {
         return if (nombre.isBlank()) "El nombre no puede estar vacío" else null
@@ -162,10 +178,14 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Done,
-                            contentDescription = "Actualizar Contacto"
+                            contentDescription = "Actualizar Contacto",
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     ) {
@@ -204,7 +224,8 @@ fun EditView(navController: NavController, contactoVM: ContactoViewModel, id:Lon
             } else {
                 Text(
                     text = "Toca el círculo para seleccionar una imagen",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = textColor
                 )
             }
 
